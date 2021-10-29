@@ -1,0 +1,12 @@
+{
+    "param 3": {
+        "default": false,
+        "type": "bool",
+        "value": false
+    },
+    "param 4": {
+        "default": false,
+        "type": "bool",
+        "value": true
+    }
+}

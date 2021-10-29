@@ -1,0 +1,6 @@
+[submodule "bin"]
+	path = bin
+	url = https://github.com/kooBH/QtBin
+[submodule "lib/jsonConfig"]
+	path = lib/jsonConfig
+	url = https://github.com/kooBH/jsonConfig
