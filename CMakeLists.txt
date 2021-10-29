@@ -14,9 +14,6 @@ set(SRC_Qt_MOC)
 set(SRC_Qt)
 set(INCL)
 
-# lib
-
-include(lib/jsonConfig/jsonConfig.cmake)
 
 macro(display_elements
 	DISPLAY_MESSAGE
@@ -93,7 +90,7 @@ list(APPEND SRC ${SRC_Qt} ${SRC_Qt_MOC})
 	
 list(APPEND INCL
 	tmp
-	lib/jsonConfig
+	lib
 	# QtFramework
 	bin/include
 	bin/include/QtCore

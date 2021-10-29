@@ -1,8 +1,16 @@
 #pragma once
 
 #include <QComboBox>
+#include <vector>
+using std::vector;
 
-#include "jsonConfig.h"
+#include <string>
+using std::string;
+
+
+#include "json.hpp"
+using nlohmann::json;
+
 
 class ParamComboBox : public QComboBox {
   Q_OBJECT

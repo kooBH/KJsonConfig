@@ -2,6 +2,7 @@
 
 #include <QLineEdit>
 #include <string>
+using std::string;
 #include "json.hpp"
 
 using std::string;

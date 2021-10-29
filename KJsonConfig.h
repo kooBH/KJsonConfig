@@ -13,7 +13,11 @@
 #include <tuple>
 #include <map>
 
-#include "jsonConfig.h"
+#include <string>
+using std::string;
+
+#include "json.hpp"
+using nlohmann::json;
 #include <fstream>
 #include <iostream>
 
