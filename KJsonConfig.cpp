@@ -72,7 +72,8 @@ void KJsonConfig::Add(QString name, string path) {
     }
     else if (!it.value()["type"].get<string>().compare("int")) {
       QLabel* t_label = new QLabel(QString::fromStdString(it.key()));
-      ParamLineEdit* t_lineEdit = new ParamLineEdit(it.value(), name, it.key(),false);
+      ParamLineEdit* t_lineEdit = new ParamLineEdit(it.value(), name, it.key(),
+        static_cast<int>(ParamLineEdit::TYPE::INT));
 
       vec_LineEdit.push_back(std::make_tuple(t_label, t_lineEdit));
 
@@ -83,7 +84,8 @@ void KJsonConfig::Add(QString name, string path) {
     }
     else if (!it.value()["type"].get<string>().compare("double")) {
       QLabel* t_label = new QLabel(QString::fromStdString(it.key()));
-      ParamLineEdit* t_lineEdit = new ParamLineEdit(it.value(), name, it.key(),true);
+      ParamLineEdit* t_lineEdit = new ParamLineEdit(it.value(), name, it.key(),
+        static_cast<int>(ParamLineEdit::TYPE::DOUBLE));
 
       vec_LineEdit.push_back(std::make_tuple(t_label, t_lineEdit));
 
@@ -91,8 +93,6 @@ void KJsonConfig::Add(QString name, string path) {
       t_layout->addWidget(t_lineEdit);
 
       QObject::connect(t_lineEdit, &ParamLineEdit::signal_set_json_double, this, &KJsonConfig::slot_set_json_double);
-
-
     }
     else if (!it.value()["type"].get<string>().compare("bool")) {
       QLabel* t_label = new QLabel(QString::fromStdString(it.key()));
@@ -104,6 +104,19 @@ void KJsonConfig::Add(QString name, string path) {
       t_layout->addWidget(t_checkBox);
 
       QObject::connect(t_checkBox, &ParamCheckBox::signal_set_json_bool, this, &KJsonConfig::slot_set_json_bool);
+    }
+    else if (!it.value()["type"].get<string>().compare("str")) {
+      QLabel* t_label = new QLabel(QString::fromStdString(it.key()));
+      ParamLineEdit* t_lineEdit = new ParamLineEdit(it.value(), name, it.key(),
+        static_cast<int>(ParamLineEdit::TYPE::STR));
+
+      vec_LineEdit.push_back(std::make_tuple(t_label, t_lineEdit));
+
+      t_layout->addWidget(t_label);
+      t_layout->addWidget(t_lineEdit);
+
+      QObject::connect(t_lineEdit, &ParamLineEdit::signal_set_json_str, this, &KJsonConfig::slot_set_json_str);
+
     }
   }
 }
@@ -135,6 +148,12 @@ void KJsonConfig::slot_set_json_int(QString _name, string _key, int _val) {
   update_json(std::get<0>(*target), std::get<1>(*target));
 }
 void KJsonConfig::slot_set_json_double(QString _name, string _key, double _val) {
+  auto *target =  &map_json[_name];
+  std::get<0>(*target)[_key]["value"]= _val;
+  update_json(std::get<0>(*target), std::get<1>(*target));
+}
+
+void KJsonConfig::slot_set_json_str(QString _name, string _key, string _val) {
   auto *target =  &map_json[_name];
   std::get<0>(*target)[_key]["value"]= _val;
   update_json(std::get<0>(*target), std::get<1>(*target));

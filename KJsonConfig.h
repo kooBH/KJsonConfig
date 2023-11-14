@@ -38,10 +38,8 @@ private :
   QHBoxLayout layout_main;
   //vector<tuple<json, QString, string, QLabel*>> vec_json;
 
+
   map<QString, tuple<json, string, QLabel*>>map_json;
-
-
-
   vector<tuple<QWidget*, QVBoxLayout*>> vec_item;
 
   vector<tuple<QLabel*, ParamComboBox*>> vec_ComboBox;
@@ -89,5 +87,6 @@ public slots :
   void slot_set_json_bool(QString name, string key, bool val);
   void slot_set_json_int(QString name, string key, int val);
   void slot_set_json_double(QString name, string key, double val);
+  void slot_set_json_str(QString name, string key, std::string val);
 
 };
