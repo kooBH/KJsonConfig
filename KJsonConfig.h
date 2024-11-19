@@ -20,6 +20,8 @@ using std::string;
 using nlohmann::json;
 #include <fstream>
 #include <iostream>
+#include <QPushButton>
+#include <QFileDialog>
 
 #include "ParamLineEdit.h"
 #include "ParamComboBox.h"
@@ -35,12 +37,18 @@ class KJsonConfig : public QWidget {
   Q_OBJECT
   
 private : 
+  // TODO(2024.11.19)
+  // Loadable Config is not implemented.
+  bool isLoadable;
+
   QHBoxLayout layout_main;
   //vector<tuple<json, QString, string, QLabel*>> vec_json;
 
 
   map<QString, tuple<json, string, QLabel*>>map_json;
   vector<tuple<QWidget*, QVBoxLayout*>> vec_item;
+  // For a Loadable config
+  vector<tuple<QHBoxLayout*,QPushButton*, QLabel*>> vec_load;
 
   vector<tuple<QLabel*, ParamComboBox*>> vec_ComboBox;
   vector<tuple<QLabel*, ParamLineEdit*>> vec_LineEdit;
@@ -53,7 +61,7 @@ private :
 public:
   KJsonConfig();
   ~KJsonConfig();
-  void Add(QString name, string path);
+  void Add(QString name, string path, bool isLoadable_=false);
 
   //https://stackoverflow.com/questions/5637197/two-square-bracket-overloading
   // => no [][] overloading : need to return pointer
