@@ -5,7 +5,11 @@
 KJsonConfig::KJsonConfig() {
   isLoadable = false;
 
+#ifdef green_theme
   setLayout(&layout_main);
+#else
+  layout_main = new QHBoxLayout(this);
+#endif
 }
 
 KJsonConfig::~KJsonConfig() {
@@ -47,12 +51,19 @@ void KJsonConfig::Add(QString name, string path, bool isLoadable_) {
     //vec_json.push_back(std::make_tuple(j,name,path,t_name));
     map_json.insert({ name,std::make_tuple(j,path,t_name) });
 
+  #ifdef green_theme
     QWidget* t_widget = new QWidget();
     QVBoxLayout* t_layout = new QVBoxLayout();
 
-
     t_widget->setLayout(t_layout);
+  
+  
     layout_main.addWidget(t_widget);
+  #else
+    QWidget* t_widget = new QWidget(this);
+    QVBoxLayout* t_layout = new QVBoxLayout(t_widget);
+    layout_main->addWidget(t_widget);
+  #endif
 
     vec_item.push_back(std::make_tuple(t_widget,t_layout));
 

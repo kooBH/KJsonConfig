@@ -41,9 +41,12 @@ private :
   // Loadable Config is not implemented.
   bool isLoadable;
 
+#ifdef green_theme
   QHBoxLayout layout_main;
   //vector<tuple<json, QString, string, QLabel*>> vec_json;
-
+#else
+  QHBoxLayout* layout_main = nullptr;
+#endif
 
   map<QString, tuple<json, string, QLabel*>>map_json;
   vector<tuple<QWidget*, QVBoxLayout*>> vec_item;
