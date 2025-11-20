@@ -78,8 +78,40 @@ void KJsonConfig::Add(QString name, string path, bool isLoadable_) {
         t_layout->addWidget(t_label);
         t_layout->addWidget(t_combo);
 
-        QObject::connect(t_combo, &ParamComboBox::signal_set_json_int, this, &KJsonConfig::slot_set_json_int);
+        // Detect option element type (int or string)
+        const json& node = it.value();
+        bool useStringSignal = false;
 
+        try {
+          if (node.contains("options") && node["options"].is_array() && !node["options"].empty()) {
+            const json& firstOpt = node["options"].front();
+            // If first option is string, treat this as string option (e.g., "mpAB" / "mpADB")
+            useStringSignal = firstOpt.is_string();
+          }
+        }
+        catch (...) {
+          // Fallback: keep default (int) behavior
+          useStringSignal = false;
+        }
+
+        if (useStringSignal) {
+          // String-based option (e.g., process_mode)
+          QObject::connect(
+            t_combo,
+            &ParamComboBox::signal_set_json_str,
+            this,
+            &KJsonConfig::slot_set_json_str
+          );
+        }
+        else {
+          // Integer-based option (e.g., samplerate)
+          QObject::connect(
+            t_combo,
+            &ParamComboBox::signal_set_json_int,
+            this,
+            &KJsonConfig::slot_set_json_int
+          );
+        }
       }
       else if (!it.value()["type"].get<string>().compare("int")) {
         QLabel* t_label = new QLabel(QString::fromStdString(it.key()));

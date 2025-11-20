@@ -17,8 +17,12 @@ class ParamComboBox : public QComboBox {
 private:
   std::string key;
   QString name;
-  int val;
+
+  int val = 0;
+  std::string val_str;
+  
   vector<int> vec_option;
+  bool isStringOption = false;
 
 public:
   ParamComboBox(json _json, QString name, std::string _key);
@@ -29,6 +33,5 @@ public slots:
 
 signals:
   void signal_set_json_int(QString _name, string _key, int _val);
-
-
+  void signal_set_json_str(QString _name, string _key, std::string _val);
 };
