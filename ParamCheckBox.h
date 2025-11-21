@@ -5,7 +5,8 @@
 #include "json.hpp"
 
 using std::string;
-using json = nlohmann::json;
+// using json = nlohmann::json;
+using json = nlohmann::ordered_json;
 
 class ParamCheckBox : public QCheckBox {
   Q_OBJECT

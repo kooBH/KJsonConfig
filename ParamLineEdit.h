@@ -6,7 +6,8 @@ using std::string;
 #include "json.hpp"
 
 using std::string;
-using json = nlohmann::json;
+// using json = nlohmann::json;
+using json = nlohmann::ordered_json;
 
 class ParamLineEdit: public QLineEdit {
   Q_OBJECT

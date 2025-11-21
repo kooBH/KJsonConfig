@@ -9,7 +9,8 @@ using std::string;
 
 
 #include "json.hpp"
-using nlohmann::json;
+// using nlohmann::json;
+using json = nlohmann::ordered_json;
 
 
 class ParamComboBox : public QComboBox {

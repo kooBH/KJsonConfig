@@ -17,7 +17,8 @@
 using std::string;
 
 #include "json.hpp"
-using nlohmann::json;
+// using nlohmann::json;
+using json = nlohmann::ordered_json;
 #include <fstream>
 #include <iostream>
 #include <QPushButton>
