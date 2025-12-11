@@ -27,8 +27,20 @@ KJsonConfig::~KJsonConfig() {
 
 */
 void KJsonConfig::Add(QString name, string path, bool isLoadable_) {
+  AddInternal(name, path, isLoadable_, nullptr);
+}
+
+void KJsonConfig::AddToLayout(QString name, string path,
+                              QVBoxLayout* externalLayout,
+                              bool isLoadable_) {
+  AddInternal(name, path, isLoadable_, externalLayout);
+}
+
+void KJsonConfig::AddInternal(QString name, string path,
+                              bool isLoadable_,
+                              QVBoxLayout* externalLayout) {
   isLoadable = isLoadable_;
-   /*read json from path*/
+  /*read json from path*/
   std::ifstream ifs(path);
 
   if (!ifs.is_open()) {
@@ -44,17 +56,23 @@ void KJsonConfig::Add(QString name, string path, bool isLoadable_) {
     json j = json::parse(ifs);
     QLabel* t_name = new QLabel(name);
 
-    //vec_json.push_back(std::make_tuple(j,name,path,t_name));
     map_json.insert({ name,std::make_tuple(j,path,t_name) });
 
-    QWidget* t_widget = new QWidget(this);
-    QVBoxLayout* t_layout = new QVBoxLayout(t_widget);
-    layout_main->addWidget(t_widget);
+    QWidget*   t_widget = nullptr;
+    QVBoxLayout* t_layout = nullptr;
+
+    if (externalLayout) {
+      t_widget = externalLayout->parentWidget();
+      t_layout = externalLayout;
+    } else {
+      t_widget = new QWidget(this);
+      t_layout = new QVBoxLayout(t_widget);
+      layout_main->addWidget(t_widget);
+    }
 
     vec_item.push_back(std::make_tuple(t_widget,t_layout));
 
     t_layout->addWidget(t_name);
-
     t_layout->setAlignment(Qt::AlignTop);
 
     // Loadable Config

@@ -57,10 +57,19 @@ private :
 
   void update_json(json j,string path);
 
+  void AddInternal(QString name, string path,
+                   bool isLoadable_,
+                   QVBoxLayout* externalLayout);
+
 public:
   KJsonConfig();
   ~KJsonConfig();
   void Add(QString name, string path, bool isLoadable_=false);
+
+  // use if adding widget to external layout
+  void AddToLayout(QString name, string path,
+                   QVBoxLayout* externalLayout,
+                   bool isLoadable_=false);
 
   //https://stackoverflow.com/questions/5637197/two-square-bracket-overloading
   // => no [][] overloading : need to return pointer
