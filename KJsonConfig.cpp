@@ -1,10 +1,12 @@
 #include "KJsonConfig.h"
 
 
+KJsonConfig* KJsonConfig::s_instance = nullptr;
 
-KJsonConfig::KJsonConfig() {
+KJsonConfig::KJsonConfig(QWidget* parent)
+  : QWidget(parent)
+{
   isLoadable = false;
-
   layout_main = new QHBoxLayout(this);
 }
 
@@ -228,5 +230,48 @@ void KJsonConfig::slot_set_json_str(QString _name, string _key, string _val) {
   update_json(std::get<0>(*target), std::get<1>(*target));
 }
 
+const json* KJsonConfig::getValueNode(const QString& name, const std::string& key) const {
+  // 1) Find section
+  auto it = map_json.find(name);
+  if (it == map_json.end()) {
+    return nullptr;
+  }
 
+  const json& root = std::get<0>(it->second);
 
+  // 2) Find parameter node
+  auto keyIt = root.find(key);
+  if (keyIt == root.end()) {
+    return nullptr;
+  }
+
+  const json& param = *keyIt;
+
+  // 3) Param as object: { "type": "...", "value": ..., "options": [...] }
+  if (param.is_object()) {
+    // 3-1) Prefer explicit "value" if present
+    auto valueIt = param.find("value");
+    if (valueIt != param.end()) {
+      return &(*valueIt);
+    }
+
+    // 3-2) If this is an "option" type without "value", fall back to first element in "options"
+    auto typeIt = param.find("type");
+    if (typeIt != param.end() && typeIt->is_string()) {
+      const std::string t = typeIt->get<std::string>();
+      if (t == "option") {
+        auto optionsIt = param.find("options");
+        if (optionsIt != param.end() && optionsIt->is_array() && !optionsIt->empty()) {
+          // Use first option as value
+          return &((*optionsIt)[0]);
+        }
+      }
+    }
+
+    // 3-3) No "value" and not a recognizable option object → no usable node
+    return nullptr;
+  }
+
+  // 4) Non-object node (legacy style: "key": 123, "key": "abc", ...)
+  return &param;
+}

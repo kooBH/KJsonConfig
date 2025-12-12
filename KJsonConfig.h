@@ -8,27 +8,25 @@
 #include <QVBoxLayout>
 #include <QLabel>
 #include <QMessageBox>
+#include <QPushButton>
+#include <QFileDialog>
 
 #include <vector>
 #include <tuple>
 #include <map>
-
+#include <type_traits>
 #include <string>
-using std::string;
-
-#include "json.hpp"
-// using nlohmann::json;
-using json = nlohmann::ordered_json;
-#include <fstream>
 #include <iostream>
-#include <QPushButton>
-#include <QFileDialog>
+
+#include <fstream>
 
 #include "ParamLineEdit.h"
 #include "ParamComboBox.h"
 #include "ParamCheckBox.h"
+#include "json.hpp"
 
-
+using json = nlohmann::ordered_json;
+using std::string;
 using std::vector;
 using std::tuple;
 using std::map;
@@ -61,15 +59,79 @@ private :
                    bool isLoadable_,
                    QVBoxLayout* externalLayout);
 
+  const json* getValueNode(const QString& name, const std::string& key) const;
+
+  explicit KJsonConfig(QWidget* parent = nullptr);
+  static KJsonConfig* s_instance;
+
 public:
-  KJsonConfig();
+  static KJsonConfig& instance() {
+    // Lazy initialization; should be called from GUI thread
+    if (!s_instance) {
+      s_instance = new KJsonConfig(); // parentless top-level widget
+    }
+    return *s_instance;
+  }
+
   ~KJsonConfig();
+  
   void Add(QString name, string path, bool isLoadable_=false);
 
   // use if adding widget to external layout
   void AddToLayout(QString name, string path,
                    QVBoxLayout* externalLayout,
                    bool isLoadable_=false);
+
+  template<typename T>
+  T getValue(const QString& name, const std::string& key, T defaultValue) const {
+    const json* node = getValueNode(name, key);
+    if (!node) {
+      return defaultValue;
+    }
+
+    try {
+      const json& j = *node;
+
+      if constexpr (std::is_same_v<T, bool>) {
+        if (j.is_boolean()) return j.get<bool>();
+        if (j.is_number_integer() || j.is_number_unsigned()) return j.get<int>() != 0;
+        if (j.is_number_float()) return j.get<double>() != 0.0;
+        if (j.is_string()) {
+          const auto s = j.get<std::string>();
+          if (s == "true" || s == "1")  return true;
+          if (s == "false" || s == "0") return false;
+        }
+        return defaultValue;
+      }
+      else if constexpr (std::is_same_v<T, int>) {
+        if (j.is_number_integer() || j.is_number_unsigned()) return j.get<int>();
+        if (j.is_number_float())   return static_cast<int>(j.get<double>());
+        if (j.is_boolean())        return j.get<bool>() ? 1 : 0;
+        if (j.is_string())         return std::stoi(j.get<std::string>());
+        return defaultValue;
+      }
+      else if constexpr (std::is_same_v<T, double>) {
+        if (j.is_number_float())   return j.get<double>();
+        if (j.is_number_integer() || j.is_number_unsigned()) return static_cast<double>(j.get<int>());
+        if (j.is_boolean())        return j.get<bool>() ? 1.0 : 0.0;
+        if (j.is_string())         return std::stod(j.get<std::string>());
+        return defaultValue;
+      }
+      else if constexpr (std::is_same_v<T, std::string>) {
+        if (j.is_string())         return j.get<std::string>();
+        if (j.is_boolean())        return j.get<bool>() ? "true" : "false";
+        if (j.is_number_integer() || j.is_number_unsigned()) return std::to_string(j.get<int>());
+        if (j.is_number_float())   return std::to_string(j.get<double>());
+        return defaultValue;
+      }
+      else {
+        // Fallback for other types - rely on nlohmann::json conversion
+        return j.get<T>();
+      }
+    } catch (...) {
+      return defaultValue;
+    }
+  }
 
   //https://stackoverflow.com/questions/5637197/two-square-bracket-overloading
   // => no [][] overloading : need to return pointer
